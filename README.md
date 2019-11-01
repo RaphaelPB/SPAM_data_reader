@@ -22,5 +22,12 @@ You can customize different options in the _SPAM_metadata.xlsx_ file, a complete
 * _EXPORT_: define the outputs and csv files options
 * _INFO_: define an Info message to be attached in the output excel files
 
+## Outputs
+All outputs are found in the _Outputs_ folder (or user-defined folder):
+*_SPAM_yourshapefile.csv_: csv file with the raw SPAM data at the level of your shapefile
+*_SPAM_yourshapefile_cropgroups.csv_: same as previous except that it is for user defined crop groups instead of SPAM crops
+*_SPAM_yourshapefile_summarized.xlsx_: excel file with the SPAM data at the level of your shapefile as 2D Tables, area and production are summed, yield is as a weighted average (by harvested area)
+*_SPAM_yourshapefile_cropgroups_summarized.xlsx_: same as previous except that it is for user defined crop groups instead of SPAM crops
+
 ## Author
 Raphael Payet-Burin (rapp@env.dtu.dk)
