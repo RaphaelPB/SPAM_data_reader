@@ -1,6 +1,6 @@
 # SPAM_data_reader
-Read IFPRI and IIASA SPAM global data at the scale of user defined shapefiles and crop groups
-SPAM 2010 data is available at https://www.mapspam.info/data/ SPAM data contains global gridded data for area, yield and production for 42 crops and 4 production systems (irrigated, rainfed high input, rainfed low input and rainfed subsitence). 
+Read IFPRI and IIASA SPAM global data at the scale of user defined shapefiles and crop groups.
+SPAM 2010 data is available at https://www.mapspam.info/data/. SPAM data contains global gridded data for area, yield and production for 42 crops and 4 production systems (irrigated, rainfed high input, rainfed low input and rainfed subsitence). 
 
 ## Requierments
  You need python with the following libraries: pandas, geopandas, rasterstats and numpy
