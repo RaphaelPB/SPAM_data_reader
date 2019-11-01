@@ -8,7 +8,7 @@ SPAM 2010 data is available at https://www.mapspam.info/data/. SPAM data contain
 ## Usage
 * Download this repository
 * Place your desired shapefiles in the _Shapefiles_ folder - **the projection needs to be EPSG:4326 - WGS84** - default shapefiles of the Zambezi River Basin are in this repository for you to test the script
-* Open the excel file _SPAM_metadata.xlsx_ - in the sheet _SHAPEFILES_ insert your shapefiles' name and the id to be used
+* Open the excel file _SPAM_metadata.xlsx_ - in the sheet _SHAPEFILES_ insert your shapefiles' name and the id to be used (replace default 'catchments' and 'countries' shapefiles)
 * Run the _SPAM_data_reader.py_ script - the first time, the script needs to download SPAM data (see _Options_ to avoid this), hence it might take some time depending on your connection
 * Go to the _Ouptputs_ folder and look at the output files
 
