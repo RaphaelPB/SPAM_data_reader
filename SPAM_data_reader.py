@@ -163,7 +163,11 @@ for shape in nshape:
     #load shape
     shapepath = os.path.join(dirname,'Shapefiles',shapename[shape]+('.shp' if '.shp' not in shapename[shape] else ''))
     shapefile = gpd.read_file(shapepath)
-    nshapeid=shapefile[shapeIDname[shape]].values
+    if shapeIDname[shape] in shapefile.keys():
+        nshapeid=shapefile[shapeIDname[shape]].values
+    else:
+        nshapeid=shapefile.index
+        print('WARNING: could not find user-specified id '+shapeIDname[shape]+' in shapefile '+shapename[shape]+', default id was used instead')
     #generate index and dataframe
     mindex=pd.MultiIndex.from_product([nshapeid,ncrop,ntech], names=['nshapeid', 'ncrop','ntech'])
     idx=pd.IndexSlice #slicer for dataframe
