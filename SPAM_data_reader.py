@@ -21,43 +21,46 @@ from rasterstats import zonal_stats
 import urllib.request
 import zipfile
 
-#OPTIONS
+#%%OPTIONS
 #ALL OPTIONS ARE TO BE SET IN EXCEL FILE 'SPAM_metadata.xlsx' - ADVANCED USER ONLY MAY CUSTOMIZE THE SCRIPT
 #LOAD DATA
 dirname = os.path.abspath(os.path.dirname(__file__))
-optfile='SPAM_metadata.xlsx' #File containing options and SPAM metadata
-skpr=10 #Size of header describing inputs in optfile
+DATAPREFIX='spam2010V1r1_global_' #'spam2017v1r1_ssa_gr_' #SPAM 2010: 
+OPTIONFILE='SPAM_metadata.xlsx'#'SPAM_metadata_SA2017.xlsx' #File containing options and SPAM metadata
+YY='Y' #name of yield variable Y in SPAM 2010, 'YQ' in SPAM 2017 SSA
+skpr=10 #Size of header describing inputs in OPTIONFILE
+#%%
 #Export options
-export=pd.read_excel(optfile,sheet_name='EXPORTS', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['export']
+export=pd.read_excel(OPTIONFILE,sheet_name='EXPORTS', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['export']
 #Shapefiles
-nshape=pd.read_excel(optfile,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd')['nshape'].values
-shapename=pd.read_excel(optfile,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['shapename']
-shapeIDname=pd.read_excel(optfile,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['shapeIDname']
+nshape=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd')['nshape'].values
+shapename=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['shapename']
+shapeIDname=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['shapeIDname']
 #Crops
-ncrop=pd.read_excel(optfile,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd')['scrop'].values
-cropignore=pd.read_excel(optfile,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['cropignore']
+ncrop=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd')['scrop'].values
+cropignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['cropignore']
 ncrop=[c for c in ncrop if cropignore[c]!=1]
-cropname=pd.read_excel(optfile,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['cropname']
-gcrop=pd.read_excel(optfile,sheet_name='GROUPcrops', skiprows=skpr, engine='xlrd')['gcrop'].values
-cropgroup=pd.read_excel(optfile,sheet_name='GROUPcrops', skiprows=skpr, engine='xlrd', index_col=[0])
+cropname=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['cropname']
+gcrop=pd.read_excel(OPTIONFILE,sheet_name='GROUPcrops', skiprows=skpr, engine='xlrd')['gcrop'].values
+cropgroup=pd.read_excel(OPTIONFILE,sheet_name='GROUPcrops', skiprows=skpr, engine='xlrd', index_col=[0])
 #Technologies
-ntech=pd.read_excel(optfile,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd')['stech'].values
-techignore=pd.read_excel(optfile,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['techignore']
+ntech=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd')['stech'].values
+techignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['techignore']
 ntech=[t for t in ntech if techignore[t]!=1]
-techname=pd.read_excel(optfile,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['techname']
+techname=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['techname']
 #Variables
-nvar =pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd')['svar'].values
-varignore=pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varignore']
+nvar =pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd')['svar'].values
+varignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varignore']
 nvar=[v for v in nvar if varignore[v]!=1]
-varname=pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varname']
-varfolder=pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varfolder']
-unit_conv_factor=pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['unit_conv_factor']
-new_var_unit=pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['new_var_unit']
+varname=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varname']
+varfolder=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varfolder']
+unit_conv_factor=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['unit_conv_factor']
+new_var_unit=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['new_var_unit']
 #download variables settings
-varurl=pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varurl']
-vardownload=pd.read_excel(optfile,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['vardownload']
+varurl=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varurl']
+vardownload=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['vardownload']
 #Info
-info=pd.read_excel(optfile,sheet_name='INFO', skiprows=skpr, engine='xlrd', index_col=[0])
+info=pd.read_excel(OPTIONFILE,sheet_name='INFO', skiprows=skpr, engine='xlrd', index_col=[0])
 #%%d Define functions
 #download spam data
 def download_SPAM(var):
@@ -82,9 +85,9 @@ def mymean(x):
 
 #load raster into panda dataframe for a specific crop, technology and variable according to given shapefile
 def load_raster_data(pdata,crop,tech,var,shapefile): #
-    raster_name = 'spam2010V1r1_global_'+str(var)+'_'+str(crop)+'_'+str(tech)+'.tif'
+    raster_name = DATAPREFIX+str(var)+'_'+str(crop)+'_'+str(tech)+'.tif'
     raster_path = os.path.join(dirname,varfolder[var],raster_name)
-    if var != 'Y':  #For Area and Production we sum
+    if var != YY:  #For Area and Production we sum
         pdata.loc[idx[:,crop,tech],var]=pd.DataFrame(zonal_stats(vectors=shapefile['geometry'], raster=raster_path, all_touched=False, stats='sum'))['sum'].values
     else: #For Yield we average (or custom) ('max' stats is not used but an argument needs to be passed)
         pdata.loc[idx[:,crop,tech],var]=pd.DataFrame(zonal_stats(vectors=shapefile['geometry'], raster=raster_path, all_touched=False, stats='max', add_stats={'mymean':mymean}))['mymean'].values
@@ -109,14 +112,14 @@ def export_spam(SPAM,cropindex,export,shape):
         for tech in ntech:
             for var in nvar:
                 colname=techname[tech]+' '+varname[var]+' '+new_var_unit[var]
-                if var=='Y': #for yield weighted average(by harvested area) of all shapes is used
-                    temp=pd.DataFrame(columns=['Y','H'],dtype=float)
-                    temp['Y']=SPAM.loc[idx[:,:,tech],'Y']
+                if var==YY: #for yield weighted average(by harvested area) of all shapes is used
+                    temp=pd.DataFrame(columns=[YY,'H'],dtype=float)
+                    temp[YY]=SPAM.loc[idx[:,:,tech],YY]
                     temp['H']=SPAM.loc[idx[:,:,tech],'H']
-                    temp['Y']=temp['Y']*temp['H']
+                    temp[YY]=temp[YY]*temp['H']
                     temp=temp.sum(level='ncrop')
-                    temp['Y']=temp['Y']/temp['H']
-                    pcrop[colname]=temp['Y']
+                    temp[YY]=temp[YY]/temp['H']
+                    pcrop[colname]=temp[YY]
                 else: # for production and area, sum of all shapes is used
                     pcrop[colname]=SPAM.loc[idx[:,:,tech],var].sum(level='ncrop')
         pcrop.to_excel(writer, sheet_name='crops')    
@@ -124,11 +127,19 @@ def export_spam(SPAM,cropindex,export,shape):
         pcatch=pd.DataFrame(index=nshapeid,dtype=float)
         for tech in ntech:
             for var in nvar:
-                if var != 'Y': #Averaged yield through different crops does not make sense
+                if var != YY: #Averaged yield through different crops does not make sense
                     colname=techname[tech]+' '+varname[var]+' '+new_var_unit[var]
                     pcatch[colname]=SPAM.loc[idx[:,:,tech],var].sum(level='nshapeid')
-        pcatch['main irrigated crop']=[SPAM.loc[idx[c,:,'I'],'H'].idxmax()[1] for c in nshapeid]
-        pcatch['main rainfed crop']=[SPAM.loc[idx[c,:,'R'],'H'].idxmax()[1] for c in nshapeid]
+        pcatch['main irrigated crop']=[
+                SPAM.loc[idx[c,:,'I'],'H'].idxmax()[1] 
+                if SPAM.loc[idx[c,:,'I'],'H'].idxmax()==SPAM.loc[idx[c,:,'I'],'H'].idxmax()
+                else 'NaN'
+                for c in nshapeid]
+        pcatch['main rainfed crop']=[
+                SPAM.loc[idx[c,:,'R'],'H'].idxmax()[1] 
+                if SPAM.loc[idx[c,:,'R'],'H'].idxmax()==SPAM.loc[idx[c,:,'R'],'H'].idxmax()
+                else 'NaN'               
+                for c in nshapeid]
         pcatch.to_excel(writer, sheet_name='catchments')   
     #Other stats - 2D tables with crop and shape
         for tech in ntech:
@@ -146,9 +157,9 @@ def reframe(SPAM):
     sp2.reset_index('ncrop', inplace=True) #put ncrop as column
     sp2['ncrop']=sp2['ncrop'].apply(groupcrops) #create a column with the crop group for each crop
     sp2.set_index('ncrop', append=True, inplace=True) #move the crop group to index
-    sp2['Y']=sp2['Y']*sp2['H'] #prepare the weighted average yield (by harvested area)
+    sp2[YY]=sp2[YY]*sp2['H'] #prepare the weighted average yield (by harvested area)
     sp2=sp2.groupby(level=['nshapeid','ntech','ncrop']).sum() #group by and sum - will sum all 'rows' with same indexes (same crop group)
-    sp2['Y']=sp2['Y']/sp2['H'] #weighted average yield wyield=sum(yield_c*A_c)/sum(A_c) where c iterates through crops belonging to a group
+    sp2[YY]=sp2[YY]/sp2['H'] #weighted average yield wyield=sum(yield_c*A_c)/sum(A_c) where c iterates through crops belonging to a group
     sp2=sp2.swaplevel('ntech','ncrop') #place crops like in original dataset
     return sp2
 
