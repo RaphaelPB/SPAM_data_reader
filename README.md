@@ -29,5 +29,15 @@ All outputs are found in the _Outputs_ folder (or user-defined folder):
 * _SPAM_yourshapefile_summarized.xlsx_: excel file with the SPAM data at the level of your shapefile as 2D Tables, area and production are summed, yield is as a weighted average (by harvested area)
 * _SPAM_yourshapefile_cropgroups_summarized.xlsx_: same as previous for user defined crop groups instead of SPAM crops
 
+## Common errors
+* If shapefiles do not have the correct projection WGS 84, EPSG 4326:
+> File "rasterio\_io.pyx", line 323, in rasterio._io.DatasetReaderBase.read
+> MemoryError
+* If all crops are not assigned a crop group !
+> return cropgroup[cropgroup.eq(crop).any(1)].index[0]
+> File "C:\Programs\envs\Python36\lib\site-packages\pandas\core\indexes\base.py", line 4280, in __getitem__
+>    return getitem(key)
+> IndexError: index 0 is out of bounds for axis 0 with size 0
+
 ## Author
 Raphael Payet-Burin (rapp@env.dtu.dk)
