@@ -31,36 +31,36 @@ YY='Y' #name of yield variable Y in SPAM 2010, 'YQ' in SPAM 2017 SSA
 skpr=10 #Size of header describing inputs in OPTIONFILE
 #%%
 #Export options
-export=pd.read_excel(OPTIONFILE,sheet_name='EXPORTS', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['export']
+export=pd.read_excel(OPTIONFILE,sheet_name='EXPORTS', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['export']
 #Shapefiles
-nshape=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd')['nshape'].values
-shapename=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['shapename']
-shapeIDname=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['shapeIDname']
+nshape=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='openpyxl')['nshape'].values
+shapename=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['shapename']
+shapeIDname=pd.read_excel(OPTIONFILE,sheet_name='SHAPEFILES', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['shapeIDname']
 #Crops
-ncrop=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd')['scrop'].values
-cropignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['cropignore']
+ncrop=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='openpyxl')['scrop'].values
+cropignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['cropignore']
 ncrop=[c for c in ncrop if cropignore[c]!=1]
-cropname=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['cropname']
-gcrop=pd.read_excel(OPTIONFILE,sheet_name='GROUPcrops', skiprows=skpr, engine='xlrd')['gcrop'].values
-cropgroup=pd.read_excel(OPTIONFILE,sheet_name='GROUPcrops', skiprows=skpr, engine='xlrd', index_col=[0])
+cropname=pd.read_excel(OPTIONFILE,sheet_name='SPAMcrops', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['cropname']
+gcrop=pd.read_excel(OPTIONFILE,sheet_name='GROUPcrops', skiprows=skpr, engine='openpyxl')['gcrop'].values
+cropgroup=pd.read_excel(OPTIONFILE,sheet_name='GROUPcrops', skiprows=skpr, engine='openpyxl', index_col=[0])
 #Technologies
-ntech=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd')['stech'].values
-techignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['techignore']
+ntech=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='openpyxl')['stech'].values
+techignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['techignore']
 ntech=[t for t in ntech if techignore[t]!=1]
-techname=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['techname']
+techname=pd.read_excel(OPTIONFILE,sheet_name='SPAMtechs', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['techname']
 #Variables
-nvar =pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd')['svar'].values
-varignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varignore']
+nvar =pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl')['svar'].values
+varignore=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['varignore']
 nvar=[v for v in nvar if varignore[v]!=1]
-varname=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varname']
-varfolder=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varfolder']
-unit_conv_factor=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['unit_conv_factor']
-new_var_unit=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['new_var_unit']
+varname=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['varname']
+varfolder=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['varfolder']
+unit_conv_factor=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['unit_conv_factor']
+new_var_unit=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['new_var_unit']
 #download variables settings
-varurl=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['varurl']
-vardownload=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='xlrd', index_col=[0]).to_dict()['vardownload']
+varurl=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['varurl']
+vardownload=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['vardownload']
 #Info
-info=pd.read_excel(OPTIONFILE,sheet_name='INFO', skiprows=skpr, engine='xlrd', index_col=[0])
+info=pd.read_excel(OPTIONFILE,sheet_name='INFO', skiprows=skpr, engine='openpyxl', index_col=[0])
 #%%d Define functions
 #download spam data
 def download_SPAM(var):
