@@ -1,15 +1,22 @@
 # SPAM_data_reader
 Read IFPRI and IIASA SPAM global data at the scale of user defined shapefiles and crop groups.
-SPAM 2010 data is available at https://www.mapspam.info/data/. SPAM data contains global gridded data for area, yield and production for 42 crops and 4 production systems (irrigated, rainfed high input, rainfed low input and rainfed subsitence). 
+SPAM 2020 data is available at https://www.mapspam.info/. SPAM data contains global gridded data for area, 
+yield and production for 46 crops and 2 production systems (irrigated, rainfed), 
+previously also: rainfed high input, rainfed low input and rainfed subsitence. 
 
 ## Requierments
- You need python with the following libraries: pandas, geopandas, rasterstats and numpy
+ You need python with the following libraries: pandas, geopandas, rasterstats, and numpy
  
 ## Usage
 * Download this repository
-* Place your desired shapefiles in the _Shapefiles_ folder - **the projection needs to be EPSG:4326 - WGS84** - default shapefiles of the Zambezi River Basin are in this repository for you to test the script
-* Open the excel file _SPAM_metadata.xlsx_ - in the sheet _SHAPEFILES_ insert your shapefiles' name and the id to be used (replace default 'catchments' and 'countries' shapefiles)
-* Run the _SPAM_data_reader.py_ script - the first time, the script needs to download SPAM data (see _Options_ to avoid this), hence it might take some time depending on your connection
+* Download the SPAM data: https://mapspam.info/ (SPAM2020v1)
+* Place your desired shapefiles in the _Shapefiles_ folder - **the projection needs to be EPSG:4326 - WGS84** - 
+default shapefiles of the Zambezi River Basin are in this repository for you to test the script
+* Open the excel file _SPAM_metadata.xlsx_ - in the sheet _SHAPEFILES_ insert your shapefiles' name and the id to be used
+(replace default 'catchments' and 'countries' shapefiles)
+* Run the _SPAM_data_reader.py_ script 
+* (**_Automatic downloading of Data currently NOT available_**) - the first time, the script needs to download SPAM data (see _Options_ to avoid this), 
+hence it might take some time depending on your connection
 * Go to the _Ouptputs_ folder and look at the output files
 
 ## Options

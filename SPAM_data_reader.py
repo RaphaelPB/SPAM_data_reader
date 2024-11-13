@@ -147,12 +147,12 @@ def export_spam(SPAM,cropindex,export,shape):
                 sheet_name=varname[var].replace(' ','')+'_'+techname[tech].replace(' ','') #sheet name accept no spaces or special carcters
                 SPAM.loc[idx[:,:,tech],var].reset_index(level='ntech',drop=True).unstack().to_excel(writer, sheet_name=sheet_name) 
         #Save
-        writer.save()
+        writer.close()
 
 #%% Reframe SPAM data according to user defined crop group
 def reframe(SPAM):
     def groupcrops(crop): #Finds user defined cropgroup of a SPAM crop
-        return cropgroup[cropgroup.eq(crop).any(1)].index[0]
+        return cropgroup[cropgroup.eq(crop).any(axis=1)].index[0]
     sp2=SPAM
     sp2.reset_index('ncrop', inplace=True) #put ncrop as column
     sp2['ncrop']=sp2['ncrop'].apply(groupcrops) #create a column with the crop group for each crop
