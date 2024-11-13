@@ -81,8 +81,8 @@ def download_SPAM(var):
         path_to_zip=varfolder[var]+'.zip'
         urllib.request.urlretrieve(url, path_to_zip)
         print('Unzipping data for '+varname[var])
-        with zipfile.ZipFile(path_to_zip, 'r') as zip_ref:
-            zip_ref.extractall(varfolder[var])
+        #with zipfile.ZipFile(path_to_zip, 'r') as zip_ref:
+        #    zip_ref.extractall(varfolder[var])
     if os.path.exists(varfolder[var]) and vardownload[var]==1:
         print(varname[var]+' data folder was found to exist and was hence not downloaded')
 
