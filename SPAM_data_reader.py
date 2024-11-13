@@ -7,9 +7,8 @@ SPAM_data_reader is distributed in the hope that it will be useful, but WITHOUT 
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 See the GNU General Public License for more details. You should have received a copy of the GNU General Public License 
 along with SPAM_data_reader. If not, see http://www.gnu.org/licenses/.
-Copyright 2019 Technical University of Denmark
-Copyright 2019 COWI A/S
-@author: raphael payet-burin (rapp@env.dtu.dk)
+
+@author: raphael payet-burin (rapy@majiconsult.dk)
 """
 
 #Libraries
@@ -20,16 +19,27 @@ import os
 from rasterstats import zonal_stats
 import urllib.request
 import zipfile
+from io import BytesIO
 
-#%%OPTIONS
+#%%OPTIONS ---------------------------
 #ALL OPTIONS ARE TO BE SET IN EXCEL FILE 'SPAM_metadata.xlsx' - ADVANCED USER ONLY MAY CUSTOMIZE THE SCRIPT
-#LOAD DATA
-dirname = os.path.abspath(os.path.dirname(__file__))
-DATAPREFIX='spam2010V1r1_global_' #'spam2017v1r1_ssa_gr_' #SPAM 2010: 
-OPTIONFILE='SPAM_metadata.xlsx'#'SPAM_metadata_SA2017.xlsx' #File containing options and SPAM metadata
-YY='Y' #name of yield variable Y in SPAM 2010, 'YQ' in SPAM 2017 SSA
-skpr=10 #Size of header describing inputs in OPTIONFILE
-#%%
+
+# Path to data and options
+# Option file path, folder with SPAM data, and "Shapefile" folder
+OPTIONFILE = 'SPAM_metadata.xlsx' #'SPAM_metadata_SA2017.xlsx' #Path to file containing options and SPAM metadata
+skpr=10 #Size of header describing inputs in OPTIONFILE no need to change)
+SPAMDATA_dir = os.path.abspath(os.path.dirname(__file__))
+SHAPEFILE_dir = os.path.join(SPAMDATA_dir, 'Shapefiles')
+
+#Options specific to SPAM version
+# Data prefix, SPAM 2020 'spam2020_v1r0_global_', SPAM 2017: SA'spam2017v1r1_ssa_gr_', SPAM 2010: 'spam2010V1r1_global_'
+DATAPREFIX='spam2020_v1r0_global_'
+# Yield variable name
+YY='Y' #name of yield variable Y in SPAM 2010 and 2020, 'YQ' in SPAM 2017 SSA
+
+#%% ----------------------------------------
+
+#Load user options
 #Export options
 export=pd.read_excel(OPTIONFILE,sheet_name='EXPORTS', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['export']
 #Shapefiles
@@ -61,6 +71,7 @@ varurl=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='op
 vardownload=pd.read_excel(OPTIONFILE,sheet_name='SPAMvars', skiprows=skpr, engine='openpyxl', index_col=[0]).to_dict()['vardownload']
 #Info
 info=pd.read_excel(OPTIONFILE,sheet_name='INFO', skiprows=skpr, engine='openpyxl', index_col=[0])
+
 #%%d Define functions
 #download spam data
 def download_SPAM(var):
@@ -80,17 +91,34 @@ def mymean(x):
     npx=np.array(x)
     npx[npx==-1]=np.nan # By default no data values are -1 (to verify load the raster with raster=rasterio.open(path), then type raster.nodatavals)
     npx[npx==0]=np.nan # For the Yield, 0 values can be assumed as no data (otherwise mean yield is draged down)
-    return np.nanmean(npx)
+    if np.isnan(npx).all():
+        return np.nan
+    else:
+        return np.nanmean(npx)
     #return np.quantile(npx,0.9) #alternative - use a quantile: 0.9 = Yield higher than 90% of found yields will be used (not as extreme as using max)
 
 #load raster into panda dataframe for a specific crop, technology and variable according to given shapefile
 def load_raster_data(pdata,crop,tech,var,shapefile): #
-    raster_name = DATAPREFIX+str(var)+'_'+str(crop)+'_'+str(tech)+'.tif'
-    raster_path = os.path.join(dirname,varfolder[var],raster_name)
-    if var != YY:  #For Area and Production we sum
-        pdata.loc[idx[:,crop,tech],var]=pd.DataFrame(zonal_stats(vectors=shapefile['geometry'], raster=raster_path, all_touched=False, stats='sum'))['sum'].values
-    else: #For Yield we average (or custom) ('max' stats is not used but an argument needs to be passed)
-        pdata.loc[idx[:,crop,tech],var]=pd.DataFrame(zonal_stats(vectors=shapefile['geometry'], raster=raster_path, all_touched=False, stats='max', add_stats={'mymean':mymean}))['mymean'].values
+    raster_name = DATAPREFIX+str(var)+'_'+str(crop).upper()+'_'+str(tech)+'.tif'
+    raster_folder_path = os.path.join(SPAMDATA_dir,varfolder[var])
+    # Open the ZIP file
+    with zipfile.ZipFile(raster_folder_path, 'r') as z:
+        # Check if the .tif file exists in the zip archive
+        raster_name = os.path.join(z.namelist()[0],raster_name)
+        if raster_name not in z.namelist():
+            print(f'{raster_name} not in the archive')
+        else:
+            # Read the .tif file as bytes and Use in-memory file with BytesIO
+            with BytesIO(z.open(raster_name).read()) as raster_path:
+                if var != YY:  # For Area and Production we sum
+                    pdata.loc[idx[:, crop, tech], var] = \
+                    pd.DataFrame(zonal_stats(vectors=shapefile['geometry'], raster=raster_path,
+                                             all_touched=False, stats='sum'))['sum'].values
+                else:  # For Yield we average (or custom) ('max' stats is not used but an argument needs to be passed)
+                    pdata.loc[idx[:, crop, tech], var] = \
+                    pd.DataFrame(zonal_stats(vectors=shapefile['geometry'], raster=raster_path,
+                                             all_touched=False, stats='max', add_stats={'mymean': mymean}))['mymean'].values
+
 
 #%% Export functions to csv and xlsx
 def export_spam(SPAM,cropindex,export,shape):
@@ -117,11 +145,11 @@ def export_spam(SPAM,cropindex,export,shape):
                     temp[YY]=SPAM.loc[idx[:,:,tech],YY]
                     temp['H']=SPAM.loc[idx[:,:,tech],'H']
                     temp[YY]=temp[YY]*temp['H']
-                    temp=temp.sum(level='ncrop')
-                    temp[YY]=temp[YY]/temp['H']
+                    temp=temp.groupby('ncrop').sum()
+                    temp[YY]=temp[YY].divide(temp['H'].replace(0, np.nan)).fillna(0) #avoids division by zero
                     pcrop[colname]=temp[YY]
                 else: # for production and area, sum of all shapes is used
-                    pcrop[colname]=SPAM.loc[idx[:,:,tech],var].sum(level='ncrop')
+                    pcrop[colname]=SPAM.loc[idx[:,:,tech],var].groupby('ncrop').sum()
         pcrop.to_excel(writer, sheet_name='crops')    
     #Shape sheet - key indicators for every shape unit
         pcatch=pd.DataFrame(index=nshapeid,dtype=float)
@@ -129,7 +157,7 @@ def export_spam(SPAM,cropindex,export,shape):
             for var in nvar:
                 if var != YY: #Averaged yield through different crops does not make sense
                     colname=techname[tech]+' '+varname[var]+' '+new_var_unit[var]
-                    pcatch[colname]=SPAM.loc[idx[:,:,tech],var].sum(level='nshapeid')
+                    pcatch[colname]=SPAM.loc[idx[:,:,tech],var].groupby('nshapeid').sum()
         pcatch['main irrigated crop']=[
                 SPAM.loc[idx[c,:,'I'],'H'].idxmax()[1] 
                 if SPAM.loc[idx[c,:,'I'],'H'].idxmax()==SPAM.loc[idx[c,:,'I'],'H'].idxmax()
@@ -157,9 +185,9 @@ def reframe(SPAM):
     sp2.reset_index('ncrop', inplace=True) #put ncrop as column
     sp2['ncrop']=sp2['ncrop'].apply(groupcrops) #create a column with the crop group for each crop
     sp2.set_index('ncrop', append=True, inplace=True) #move the crop group to index
-    sp2[YY]=sp2[YY]*sp2['H'] #prepare the weighted average yield (by harvested area)
+    sp2[YY]=sp2[YY]*sp2['H']#prepare the weighted average yield (by harvested area)
     sp2=sp2.groupby(level=['nshapeid','ntech','ncrop']).sum() #group by and sum - will sum all 'rows' with same indexes (same crop group)
-    sp2[YY]=sp2[YY]/sp2['H'] #weighted average yield wyield=sum(yield_c*A_c)/sum(A_c) where c iterates through crops belonging to a group
+    sp2[YY]=sp2[YY].divide(sp2['H'].replace(0, np.nan)).fillna(0) #weighted average yield wyield=sum(yield_c*A_c)/sum(A_c) where c iterates through crops belonging to a group
     sp2=sp2.swaplevel('ntech','ncrop') #place crops like in original dataset
     return sp2
 
@@ -172,7 +200,7 @@ for var in nvar:
 for shape in nshape:
     print('Processing '+shape+' shapefile')
     #load shape
-    shapepath = os.path.join(dirname,'Shapefiles',shapename[shape]+('.shp' if '.shp' not in shapename[shape] else ''))
+    shapepath = os.path.join(SHAPEFILE_dir,shapename[shape]+('.shp' if '.shp' not in shapename[shape] else ''))
     shapefile = gpd.read_file(shapepath)
     if shapeIDname[shape] in shapefile.keys():
         nshapeid=shapefile[shapeIDname[shape]].values
