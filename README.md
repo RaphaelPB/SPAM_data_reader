@@ -47,4 +47,4 @@ All outputs are found in the _Outputs_ folder (or user-defined folder):
 > IndexError: index 0 is out of bounds for axis 0 with size 0
 
 ## Author
-Raphael Payet-Burin (rapp@env.dtu.dk)
+Raphael Payet-Burin (rapy@majiconsult.dk)
